@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+		<meta name="viewport"
+			content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style type="text/css">
+			* {
+				padding: 0;
+				margin: 0;
+				box-sizing: border-box;
+				font-family: '楷体';
+			}
+
+			.wrap {
+				width: 100vw;
+				height: 100vh;
+				background-color: #000;
+				color: #fff;
+
+				overflow: auto;
+				/* 显示滚动条 */
+			}
+
+			.wrap_cate {
+				/* position:relative; */
+				display: flex;
+				/* flex-direction: column; */
+				border-bottom: red 1px solid;
+				margin-bottom: 16px;
+			}
+
+			.cate_name {
+				max-width: 20px;
+				writing-mode: vertical-rl;
+
+				display: flex;
+				justify-content: center;
+				/* 主轴居中*/
+				align-items: center;
+				/* 交叉轴居中*/
+				text-align: center;
+				/* 内容居中*/
+				text-shadow: 2px 2px #6699cc;
+				-webkit-text-stroke: 1px #6699cc;
+				/* 文字描边 */
+				font-size: 20px;
+				padding: 10px 15px;
+			}
+
+			.content {
+				flex: 1;
+				display: flex;
+				flex-flow: wrap;
+				/* padding:3px 20px; */
+				padding: 2px 0;
+			}
+
+			.content .each {
+				border: 1px solid #000;
+
+				height: 26px;
+				line-height: 26px;
+				font-size: 16px;
+				padding: 0 16px;
+			}
+
+			.content .each:hover {
+				border: 1px solid green;
+				border-radius: 6px;
+				cursor: pointer;
+			}
+
+
+			.search {
+				background-color: #fff;
+				border: 3px solid #6699cc;
+				position: fixed;
+				/* color: #fff; */
+				left: 0px;
+				top: 0px;
+				/* transform: translate(-50%, -50%); */
+				display: flex;
+				border-radius: 7px;
+
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			.search .each {
+				height: 30px;
+				line-height: 30px;
+
+				margin-right: 3px;
+				margin-left: 3px;
+			}
+
+			.search .btn {
+				margin-right: 18px;
+				text-align: center;
+			}
+
+			.search .btn:hover {
+				cursor: pointer;
+			}
+
+			.search .search_text {
+				min-width: 120px;
+				border: 1px solid #000;
+				outline: 0px solid transparent;
+				border-radius: 6px;
+				overflow: hidden;
+				;
+			}
+
+			.search .search_text:focus {
+				border: 1px solid #6699cc;
+			}
+
+			.search .move {
+				margin-left: 9px;
+			}
+
+			@media screen and (max-width: 768px) {
+				.search {
+					flex-direction: column;
+				}
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="search">
+			<div class="each btn move">移动</div>
+			<div class="each search_text" contenteditable="plaintext-only">请输入关键词查询</div>
+			<div class="each btn">
+				本页
+			</div>
+			<div class="each btn">
+				谷歌
+			</div>
+			<div class="each btn">
+				百度
+			</div>
+			<div class="each btn">
+				bing
+			</div>
+			<div class="each btn">
+				搜狗
+			</div>
+		</div>
+
+		<div class="wrap">
+			<!-- 
+			<div class="wrap_cate">
+				<div class="cate_name">搜索引擎</div>
+				<div class="content">
+					<div list_index="0" class="each">bing</div>
+					<div class="each">谷歌</div>
+				</div>
+				<div class="cate_name">搜索引擎</div>
+			</div>
+			-->
+		</div>
+
+		<script type="text/javascript">
+			let moveEl = document.querySelector('.search');
+
+			moveEl.addEventListener('click', function(e) {
+				let searchText = document.querySelector('.search .search_text').innerHTML
+				let text = e.target.innerText;
+				if (text.indexOf('本页') >= 0) {
+
+				} else if (text.indexOf('谷歌') >= 0) {
+					jumpUrl('https://www.google.com?q=' + searchText, '_blank')
+				} else if (text.indexOf('百度') >= 0) {
+					jumpUrl('https://www.baidu.com/s?wd=' + searchText, '_blank')
+				} else if (text.indexOf('bing') >= 0) {
+					jumpUrl('https://cn.bing.com/search?q=' + searchText, '_blank')
+				} else if (text.indexOf('搜狗') >= 0) {
+					jumpUrl('https://www.sogou.com/web?query=' + searchText, '_blank')
+				}
+			});
+			
+			//按回车键搜索
+			document.addEventListener('keydown',function(e){
+				let searchText = document.querySelector('.search .search_text').innerHTML
+				if(e.keyCode==13){
+					jumpUrl('https://cn.bing.com/search?q=' + searchText, '_blank')
+				}
+				 e.preventDefault();//换行不输出到页面
+			})
+
+			let pos = {
+				"x": 0,
+				"y": 0
+			}
+			let moveStatus = 1; // 1关闭，2开启
+			let clickOffset = {
+				'x': 0,
+				'y': 0
+			};
+			document.body.addEventListener('mousemove', function(e) {
+				// console.log('x->y',e.clientX,e.clientY)
+				pos['x'] = e.clientX
+				pos['y'] = e.clientY
+				// console.log(e.screenX,e.screenY,'----',e.clientX,e.clientY)
+			});
+			document.body.addEventListener('mousedown', function(e) {
+				// console.log('x->y',e.clientX,e.clientY)
+				// pos['x'] = e.clientX
+				// pos['y'] = e.clientY
+				if (e.target.innerHTML === '移动') {
+					moveStatus = 2;
+					clickOffset['x'] = e.offsetX
+					clickOffset['y'] = e.offsetY
+				}
+			});
+			document.body.addEventListener('mouseup', function(e) {
+				// console.log('x->y',e.clientX,e.clientY)
+				// pos['x'] = e.clientX
+				// pos['y'] = e.clientY
+				moveStatus = 1;
+				clickOffset['x'] = 0
+				clickOffset['y'] = 0
+			});
+
+			document.body.addEventListener('touchmove', function(e) {
+				// console.log('touchmove x->y',e.clientX,e.clientY)
+				let touch = e.touches[0];
+				pos['x'] = touch.pageX
+				pos['y'] = touch.pageY
+				// console.log(e.screenX,e.screenY,'----',e.clientX,e.clientY)
+			});
+			document.body.addEventListener('touchstart', function(e) {
+				let touch = e.touches[0];
+				if (touch.target.innerHTML === '移动') {
+					moveStatus = 2;
+					clickOffset['x'] = touch.clientX - moveEl.offsetLeft
+					clickOffset['y'] = touch.clientY - moveEl.offsetTop;
+				}
+			});
+			document.body.addEventListener('touchend', function(e) {
+				// console.log('x->y',e.clientX,e.clientY)
+				moveStatus = 1;
+				clickOffset['x'] = 0
+				clickOffset['y'] = 0
+			});
+
+
+			window.requestAnimationFrame = (function() {
+				return window.requestAnimationFrame ||
+					window.webkitRequestAnimationFrame ||
+					window.mozRequestAnimationFrame ||
+					function(callback) {
+						window.setTimeout(callback, 1000 / 60);
+					}
+			})();
+
+			function job() {
+				// console.log(moveStatus)
+				if (moveStatus === 2) {
+					moveEl.style.left = pos['x'] - clickOffset['x'] + 'px';
+					moveEl.style.top = pos['y'] - clickOffset['y'] + 'px';
+				}
+				window.requestAnimationFrame(job);
+			}
+			job();
+
+
+			var cate = {
+				"装机工具win10": [
+					"老毛桃",
+				],
+				"java_web工具": [
+					"maven中央仓库",
+					"spring官网",
+					"spring initializr",
+					"bing"
+				],
+				"搜索引擎": [
+					"百度",
+					"谷歌",
+					"bing"
+				],
+				"官方购物平台": [
+					"拼多多",
+					"淘宝",
+					"京东",
+					"天猫",
+					"苏宁",
+					"国美",
+					"1688",
+					"什么值得买"
+				],
+				"官方音乐": [
+					"酷狗音乐",
+					"网易云音乐",
+					"qq音乐",
+					"酷我音乐"
+				],
+				"官方站址": [
+					"小红书",
+					"大众点评",
+					"支付宝",
+					"微信公众号后台"
+				],
+				"开发工具": [
+
+				]
+			};
+			var list = [
+
+				{
+					"name": "搜狗", //这个作为id使用，需要同步到分类
+					"link": "https://www.sogou.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+
+				{
+					"name": "spring官网", //这个作为id使用，需要同步到分类
+					"link": "https://spring.io",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "spring initializr", //这个作为id使用，需要同步到分类
+					"link": "https://start.spring.io",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "maven中央仓库", //这个作为id使用，需要同步到分类
+					"link": "https://mvnrepository.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+
+
+
+				{
+					"name": "大众点评", //这个作为id使用，需要同步到分类
+					"link": "https://www.dianping.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "简书", //这个作为id使用，需要同步到分类
+					"link": "https://www.jianshu.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "支付宝", //这个作为id使用，需要同步到分类
+					"link": "https://www.alipay.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+
+
+
+
+				{
+					"name": "谷歌", //这个作为id使用，需要同步到分类
+					"link": "https://www.google.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "bing",
+					"link": "https://cn.bing.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "百度", //这个作为id使用，需要同步到分类
+					"link": "https://www.baidu.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "bing",
+					"link": "https://cn.bing.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+
+
+
+
+
+				{
+					"name": "苏宁", //这个作为id使用，需要同步到分类
+					"link": "https://www.suning.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "国美", //这个作为id使用，需要同步到分类
+					"link": "https://www.gome.com.cn",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "拼多多",
+					"link": "https://mms.pinduoduo.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "淘宝",
+					"link": "https://www.taobao.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "京东",
+					"link": "https://www.jd.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "唯品会",
+					"link": "https://www.vip.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "天猫",
+					"link": "https://www.tmall.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "什么值得买",
+					"link": "https://www.smzdm.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "1688",
+					"link": "https://www.1688.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				}
+
+
+
+
+				, {
+					"name": "酷狗音乐",
+					"link": "https://www.kugou.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				}, {
+					"name": "网易云音乐",
+					"link": "https://music.163.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				}, {
+					"name": "qq音乐",
+					"link": "https://y.qq.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				}, {
+					"name": "酷我音乐",
+					"link": "http://www.kuwo.cn",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				}
+
+
+
+				, {
+					"name": "小红书",
+					"link": "https://www.xiaohongshu.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				}, {
+					"name": "酷我音乐",
+					"link": "http://www.kuwo.cn",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				}, {
+					"name": "酷我音乐",
+					"link": "http://www.kuwo.cn",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				}, {
+					"name": "酷我音乐",
+					"link": "http://www.kuwo.cn",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				}
+			];
+
+
+			function jumpUrl(link, target) {
+				var el = document.createElement('a');
+				el.href = link;
+				if (target === '_blank') {
+					el.target = "_blank";
+				}
+				document.body.appendChild(el);
+				el.click();
+				document.body.removeChild(el);
+			}
+			//代理点击
+			document.addEventListener("click", function(e) {
+				//点击链接跳转
+				var index = e.target.getAttribute("list_index");
+				if (index === null || index === undefined) {
+					return;
+				}
+
+				jumpUrl(list[index]['link'], list[index]['target']);
+			});
+
+
+			function show() {
+				let wrapEl = document.querySelector('.wrap')
+				//数据整理
+				let tidyData = {};
+				for (let cateName in cate) {
+					let linkList = cate[cateName];
+					if (!tidyData[cateName]) {
+						tidyData[cateName] = [];
+					}
+					for (let i in linkList) {
+						let linkId = linkList[i];
+						let find;
+						for (let index = 0; index < list.length; index++) {
+							if (linkId === list[index]['name']) {
+								find = list[index];
+								find['index'] = index;
+								break;
+							}
+						}
+						if (find) {
+							tidyData[cateName].push(find);
+						}
+					}
+				}
+				// console.log(tidyData)
+				//创建div
+				for (let cateName in tidyData) {
+					//创建
+					let el = document.createElement('div');
+					el.className = 'wrap_cate';
+
+					let el1 = document.createElement('div');
+					el1.className = 'cate_name';
+					el1.innerHTML = cateName;
+
+					el.appendChild(el1)
+
+					let el2 = document.createElement('div');
+					el2.className = 'content';
+
+					el.appendChild(el2)
+
+					for (let i in tidyData[cateName]) {
+						// console.log(9999)
+						let elTemp = document.createElement('div');
+						elTemp.className = 'each';
+						elTemp.setAttribute('list_index', tidyData[cateName][i]['index']);
+						elTemp.innerHTML = tidyData[cateName][i]['name']
+						el2.appendChild(elTemp)
+					}
+
+					let el1Copy = document.createElement('div');
+					el1Copy.className = 'cate_name';
+					el1Copy.innerHTML = cateName;
+
+					el.appendChild(el1Copy)
+
+					wrapEl.appendChild(el);
+				}
+			}
+			show();
+		</script>
+	</body>
+</html>
