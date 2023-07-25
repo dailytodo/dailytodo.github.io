@@ -229,12 +229,18 @@
 			});
 
 			document.body.addEventListener('touchmove', function(e) {
+				e.preventDefault();//关掉android橡皮筋效果
 				// console.log('touchmove x->y',e.clientX,e.clientY)
 				let touch = e.touches[0];
 				pos['x'] = touch.pageX
 				pos['y'] = touch.pageY
 				// console.log(e.screenX,e.screenY,'----',e.clientX,e.clientY)
 			});
+			/* ios兼容代码
+			document.body.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+}, { passive: false });
+*/
 			document.body.addEventListener('touchstart', function(e) {
 				let touch = e.touches[0];
 				if (touch.target.innerHTML === '移动') {
