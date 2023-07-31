@@ -14,7 +14,7 @@
 
 			body {
 				overscroll-behavior-y: contain;
-				overflow:hidden;
+				overflow: hidden;
 				/* 关闭移动端下拉刷新 */
 			}
 
@@ -127,6 +127,10 @@
 
 			.search .move {
 				margin-left: 9px;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
 			}
 
 			@media screen and (max-width: 768px) {
@@ -139,54 +143,121 @@
 	<body>
 
 		<div class="search">
-			<div class="each btn move">移动</div>
-			<div class="each search_text" contenteditable="plaintext-only">请输入关键词查询</div>
-			<div class="each btn">
+
+			<div act="move" class="each btn move">移动</div>
+
+			<div act="keyword" class="each search_text" id='cc' contenteditable="plaintext-only">请输入关键词查询</div>
+
+			<div act="current_page" class="each btn">
+				<input class="search_engine" type="checkbox">
 				本页
 			</div>
-			<div class="each btn">
+			<div act="google" class="each btn">
+				<input class="search_engine" type="checkbox">
 				谷歌
 			</div>
-			<div class="each btn">
+			<div act="baidu" class="each btn">
+				<input class="search_engine" type="checkbox">
 				百度
 			</div>
-			<div class="each btn">
+			<div act="bing" class="each btn">
+				<input class="search_engine" type="checkbox">
 				bing
 			</div>
-			<div class="each btn">
+			<div act="sougou" class="each btn">
+				<input class="search_engine" type="checkbox">
 				搜狗
 			</div>
 		</div>
 
 		<div class="wrap">
-			<!-- 
-			<div class="wrap_cate">
+			<!-- 			<div class="wrap_cate">
 				<div class="cate_name">搜索引擎</div>
 				<div class="content">
 					<div list_index="0" class="each">bing</div>
 					<div class="each">谷歌</div>
 				</div>
 				<div class="cate_name">搜索引擎</div>
-			</div>
-			-->
+			</div> -->
 		</div>
 
 		<script type="text/javascript">
+			let allEngine = document.querySelectorAll('.search_engine');
+
+			allEngine.forEach(function(el) {
+				el.addEventListener('change', function(each) {
+					allEngine.forEach(function(el2) {
+						el2.checked = false
+					})
+					each.target.checked = true;
+					let who = each.target.parentNode.getAttribute('act')
+					window.localStorage.setItem('defaultSearchEngine', who);
+				})
+			})
+
+
 			let moveEl = document.querySelector('.search');
+			let vDom = [];
 
 			moveEl.addEventListener('click', function(e) {
+				let act = e.target.getAttribute('act');
+				if (!act || act === 'move') {
+					return false;
+				}
 				let searchText = document.querySelector('.search .search_text').innerHTML
 				let text = e.target.innerText;
-				if (text.indexOf('本页') >= 0) {
+			    if (act === 'keyword' && text.indexOf('请输入关键词查询') >= 0) {
+					const range = document.createRange()
+					range.selectNodeContents(document.getElementById('cc'))
+					window.getSelection().removeAllRanges() // 清楚其他的选中状态
+					window.getSelection().addRange(range) // 添加元素选中住那个改
+				} else {
+					jumpSearchEngine(act, searchText);
+				}
+				return false;
+			});
 
-				} else if (text.indexOf('谷歌') >= 0) {
+			function jumpSearchEngine(act, searchText) {
+				if (act === 'google') {
 					jumpUrl('https://www.google.com?q=' + searchText, '_blank')
-				} else if (text.indexOf('百度') >= 0) {
+				} else if (act === 'baidu') {
 					jumpUrl('https://www.baidu.com/s?wd=' + searchText, '_blank')
-				} else if (text.indexOf('bing') >= 0) {
+				} else if (act === 'bing') {
 					jumpUrl('https://cn.bing.com/search?q=' + searchText, '_blank')
-				} else if (text.indexOf('搜狗') >= 0) {
+				} else if (act === 'sougou') {
 					jumpUrl('https://www.sogou.com/web?query=' + searchText, '_blank')
+				}else if (act === 'current_page') {
+					for (let i in vDom) {
+						let find = false;
+						for (let j in vDom[i]['contentChild']) {
+							let el = vDom[i]['contentChild'][j];
+							if (searchText.indexOf(el.innerHTML) >= 0 || el.innerHTML.indexOf(searchText) >= 0 || searchText==='') {
+								find = true;
+								el.style.display = "block"
+							} else {
+								el.style.display = "none"
+							}
+						}
+						if (find) {
+							vDom[i]['wrap'].style.display = ""
+						} else {
+							vDom[i]['wrap'].style.display = "none"
+						}
+					}
+				} 
+			}
+
+			//初始化
+			let who = window.localStorage.getItem("defaultSearchEngine");
+			// console.log('init',who)
+			if (!who) {
+				who = 'bing'
+				window.localStorage.setItem("defaultSearchEngine", "bing");
+			}
+			allEngine.forEach(function(el2) {
+				if (el2.parentNode.getAttribute('act') === who) {
+					// console.log(el2.parentNode.getAttribute('act'))
+					el2.checked = true;
 				}
 			});
 
@@ -194,9 +265,13 @@
 			document.addEventListener('keydown', function(e) {
 				let searchText = document.querySelector('.search .search_text').innerHTML
 				if (e.keyCode == 13) {
-					jumpUrl('https://cn.bing.com/search?q=' + searchText, '_blank')
+					let who = window.localStorage.getItem("defaultSearchEngine");
+					if (!who) {
+						who = "bing";
+					}
+					jumpSearchEngine(who, searchText)
+					// jumpUrl('https://cn.bing.com/search?q=' + searchText, '_blank')
 					e.preventDefault(); //换行不输出到页面
-
 				}
 			})
 
@@ -210,33 +285,39 @@
 				'y': 0
 			};
 			document.body.addEventListener('mousemove', function(e) {
+				// console.log('mousemove')
 				// console.log('x->y',e.clientX,e.clientY)
 				pos['x'] = e.clientX
 				pos['y'] = e.clientY
 				// console.log(e.screenX,e.screenY,'----',e.clientX,e.clientY)
 			});
 			document.body.addEventListener('mousedown', function(e) {
-				// console.log('x->y',e.clientX,e.clientY)
+				// console.log('down')
+				// window.xx = e
 				// pos['x'] = e.clientX
 				// pos['y'] = e.clientY
 				if (e.target.innerHTML === '移动') {
+					clickOffset['x'] = e.offsetX + 12
+					clickOffset['y'] = e.offsetY + 3
+					pos['x'] = e.clientX
+					pos['y'] = e.clientY
 					moveStatus = 2;
-					clickOffset['x'] = e.offsetX
-					clickOffset['y'] = e.offsetY
-					// console.log(clickOffset)
-					// window.chencai=e
 				}
 			});
 			document.body.addEventListener('mouseup', function(e) {
+				// console.log('mouseup')
 				// console.log('x->y',e.clientX,e.clientY)
 				// pos['x'] = e.clientX
 				// pos['y'] = e.clientY
-				moveStatus = 1;
-				clickOffset['x'] = 0
-				clickOffset['y'] = 0
 
-				window.localStorage.setItem('menuX', e.clientX - e.offsetX);
-				window.localStorage.setItem('menuY', e.clientY - e.offsetY);
+				if (moveStatus === 2) {
+					moveStatus = 1;
+					clickOffset['x'] = 0
+					clickOffset['y'] = 0
+					window.localStorage.setItem('menuX', e.clientX - e.offsetX - 12);
+					window.localStorage.setItem('menuY', e.clientY - e.offsetY - 3);
+				}
+
 			});
 
 			document.body.addEventListener('touchmove', function(e) {
@@ -244,25 +325,22 @@
 				let touch = e.touches[0];
 				pos['x'] = touch.pageX
 				pos['y'] = touch.pageY
-				return false;
-				// console.log(e.screenX,e.screenY,'----',e.clientX,e.clientY)
+				// console.log('move')
 			});
-			/* ios兼容代码，这种方式会导致页面不能滚动
-			document.body.addEventListener('touchmove', (e) => {
-  e.preventDefault();
-}, { passive: false });
-*/
 			document.body.addEventListener('touchstart', function(e) {
 				let touch = e.touches[0];
 				if (touch.target.innerHTML === '移动') {
-					moveStatus = 2;
 					clickOffset['x'] = touch.clientX - moveEl.offsetLeft
 					clickOffset['y'] = touch.clientY - moveEl.offsetTop;
+					pos['x'] = touch.pageX
+					pos['y'] = touch.pageY
+					moveStatus = 2;
 				}
 			});
 			document.body.addEventListener('touchend', function(e) {
-				window.localStorage.setItem('menuX', pos['x']-clickOffset['x']);
-				window.localStorage.setItem('menuY', pos['y']-clickOffset['y']);
+				// console.log('end')
+				window.localStorage.setItem('menuX', pos['x'] - clickOffset['x']);
+				window.localStorage.setItem('menuY', pos['y'] - clickOffset['y']);
 				// console.log('x->y',e.clientX,e.clientY)
 				moveStatus = 1;
 				clickOffset['x'] = 0
@@ -280,12 +358,12 @@
 			if (!menuY) {
 				menuY = 0;
 			}
-			if (menuX > windowX || menuY > windowY) {
+			if (menuX > windowX || menuY > windowY || menuX < 0 || menuY < 0) {
 				moveEl.style.left = '0px';
 				moveEl.style.top = '0px';
 			} else {
-				pos['x']=menuX
-				pos['y']=menuY
+				pos['x'] = menuX
+				pos['y'] = menuY
 				moveEl.style.left = menuX + 'px';
 				moveEl.style.top = menuY + 'px';
 			}
@@ -304,6 +382,7 @@
 			function job() {
 				// console.log(moveStatus)
 				if (moveStatus === 2) {
+					// console.log('animate')
 					moveEl.style.left = pos['x'] - clickOffset['x'] + 'px';
 					moveEl.style.top = pos['y'] - clickOffset['y'] + 'px';
 				}
@@ -589,13 +668,25 @@
 				// console.log(tidyData)
 				//创建div
 				for (let cateName in tidyData) {
+					let temp = {
+						"wrap": null,
+						"cate1": null,
+						"contentWrap": null,
+						"contentChild": [],
+						"cate2": null
+					};
+
 					//创建
 					let el = document.createElement('div');
 					el.className = 'wrap_cate';
 
+					temp.wrap = el;
+
 					let el1 = document.createElement('div');
 					el1.className = 'cate_name';
 					el1.innerHTML = cateName;
+
+					temp.cate1 = el1;
 
 					el.appendChild(el1)
 
@@ -603,6 +694,8 @@
 					el2.className = 'content';
 
 					el.appendChild(el2)
+					temp.contentWrap = el2;
+					temp.contentChild = [];
 
 					for (let i in tidyData[cateName]) {
 						// console.log(9999)
@@ -611,16 +704,17 @@
 						elTemp.setAttribute('list_index', tidyData[cateName][i]['index']);
 						elTemp.innerHTML = tidyData[cateName][i]['name']
 						el2.appendChild(elTemp)
+						temp.contentChild.push(elTemp)
 					}
-
 					let el1Copy = document.createElement('div');
 					el1Copy.className = 'cate_name';
 					el1Copy.innerHTML = cateName;
-
 					el.appendChild(el1Copy)
-
+					temp.cate2 = el1Copy;
 					wrapEl.appendChild(el);
+					vDom.push(temp)
 				}
+				// window.xx=vDom  [2]['contentChild'][0].style.display="block"
 			}
 			show();
 		</script>
