@@ -32,7 +32,7 @@
 				/* position:relative; */
 				display: flex;
 				/* flex-direction: column; */
-				border-bottom: red 1px solid;
+				border-bottom: #6699cc 1px solid;
 				margin-bottom: 16px;
 			}
 
@@ -206,7 +206,7 @@
 				}
 				let searchText = document.querySelector('.search .search_text').innerHTML
 				let text = e.target.innerText;
-			    if (act === 'keyword' && text.indexOf('请输入关键词查询') >= 0) {
+				if (act === 'keyword' && text.indexOf('请输入关键词查询') >= 0) {
 					const range = document.createRange()
 					range.selectNodeContents(document.getElementById('cc'))
 					window.getSelection().removeAllRanges() // 清楚其他的选中状态
@@ -226,12 +226,13 @@
 					jumpUrl('https://cn.bing.com/search?q=' + searchText, '_blank')
 				} else if (act === 'sougou') {
 					jumpUrl('https://www.sogou.com/web?query=' + searchText, '_blank')
-				}else if (act === 'current_page') {
+				} else if (act === 'current_page') {
 					for (let i in vDom) {
 						let find = false;
 						for (let j in vDom[i]['contentChild']) {
 							let el = vDom[i]['contentChild'][j];
-							if (searchText.indexOf(el.innerHTML) >= 0 || el.innerHTML.indexOf(searchText) >= 0 || searchText==='') {
+							if (searchText.indexOf(el.innerHTML) >= 0 ||
+								el.innerHTML.indexOf(searchText) >= 0 || searchText === '') {
 								find = true;
 								el.style.display = "block"
 							} else {
@@ -244,7 +245,7 @@
 							vDom[i]['wrap'].style.display = "none"
 						}
 					}
-				} 
+				}
 			}
 
 			//初始化
@@ -285,17 +286,10 @@
 				'y': 0
 			};
 			document.body.addEventListener('mousemove', function(e) {
-				// console.log('mousemove')
-				// console.log('x->y',e.clientX,e.clientY)
 				pos['x'] = e.clientX
 				pos['y'] = e.clientY
-				// console.log(e.screenX,e.screenY,'----',e.clientX,e.clientY)
 			});
 			document.body.addEventListener('mousedown', function(e) {
-				// console.log('down')
-				// window.xx = e
-				// pos['x'] = e.clientX
-				// pos['y'] = e.clientY
 				if (e.target.innerHTML === '移动') {
 					clickOffset['x'] = e.offsetX + 12
 					clickOffset['y'] = e.offsetY + 3
@@ -305,11 +299,6 @@
 				}
 			});
 			document.body.addEventListener('mouseup', function(e) {
-				// console.log('mouseup')
-				// console.log('x->y',e.clientX,e.clientY)
-				// pos['x'] = e.clientX
-				// pos['y'] = e.clientY
-
 				if (moveStatus === 2) {
 					moveStatus = 1;
 					clickOffset['x'] = 0
@@ -325,7 +314,6 @@
 				let touch = e.touches[0];
 				pos['x'] = touch.pageX
 				pos['y'] = touch.pageY
-				// console.log('move')
 			});
 			document.body.addEventListener('touchstart', function(e) {
 				let touch = e.touches[0];
@@ -338,10 +326,8 @@
 				}
 			});
 			document.body.addEventListener('touchend', function(e) {
-				// console.log('end')
 				window.localStorage.setItem('menuX', pos['x'] - clickOffset['x']);
 				window.localStorage.setItem('menuY', pos['y'] - clickOffset['y']);
-				// console.log('x->y',e.clientX,e.clientY)
 				moveStatus = 1;
 				clickOffset['x'] = 0
 				clickOffset['y'] = 0
@@ -368,8 +354,6 @@
 				moveEl.style.top = menuY + 'px';
 			}
 
-
-
 			window.requestAnimationFrame = (function() {
 				return window.requestAnimationFrame ||
 					window.webkitRequestAnimationFrame ||
@@ -390,10 +374,14 @@
 			}
 			job();
 
-
 			var cate = {
-				"装机工具win10": [
-					"老毛桃",
+				"开发工具": [
+					"JSON工具"
+				],
+				"邮箱": [
+					"微软邮箱",
+					"163私人邮箱",
+					"阿里邮箱"
 				],
 				"java_web工具": [
 					"maven中央仓库",
@@ -427,12 +415,36 @@
 					"大众点评",
 					"支付宝",
 					"微信公众号后台"
-				],
-				"开发工具": [
-
 				]
 			};
 			var list = [
+
+				{
+					"name": "JSON工具", //这个作为id使用，需要同步到分类
+					"link": "tool/json.html",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "微软邮箱", //这个作为id使用，需要同步到分类
+					"link": "https://login.live.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+
+				{
+					"name": "163私人邮箱", //这个作为id使用，需要同步到分类
+					"link": "https://mail.163.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+
+				{
+					"name": "阿里邮箱", //这个作为id使用，需要同步到分类
+					"link": "https://email.aliyun.com",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
 
 				{
 					"name": "搜狗", //这个作为id使用，需要同步到分类
