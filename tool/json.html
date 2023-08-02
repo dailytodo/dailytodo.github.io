@@ -40,7 +40,7 @@
 			.handle .choose {
 				margin-left: 12px;
 				border: 1px solid #fff;
-				color:#6699cc;
+				color: #6699cc;
 			}
 
 			.handle .open:hover,
@@ -48,7 +48,7 @@
 			.handle .choose:hover {
 				cursor: pointer;
 				border: 1px solid #6699cc;
-				color:#6699cc;
+				color: #6699cc;
 			}
 
 			.write {
@@ -78,10 +78,13 @@
 			let writeEl = document.querySelector('.write')
 
 
-
+			function delHtmlTag(str) {
+				return str.replace(/<[^>]+>/g, "");
+			}
 			openEl.addEventListener('click', function() {
 				let jsonStr = writeEl.innerHTML;
-				console.log(jsonStr)
+				jsonStr = delHtmlTag(jsonStr)
+				// console.log(jsonStr)
 				try {
 					let obj = JSON.parse(jsonStr)
 					let formatStr = JSON.stringify(obj, null, ' ');
@@ -89,17 +92,20 @@
 					writeEl.style.color = 'black';
 				} catch (e) {
 					writeEl.style.color = 'red';
+					console.log(e)
 				}
 			})
 			closeEl.addEventListener('click', function() {
 				try {
 					let jsonStr = writeEl.innerHTML;
+					jsonStr = delHtmlTag(jsonStr)
 					let obj = JSON.parse(jsonStr)
 					let formatStr = JSON.stringify(obj, null, '');
 					writeEl.innerHTML = formatStr
 					writeEl.style.color = 'black';
 				} catch (e) {
 					writeEl.style.color = 'red';
+					console.log(e)
 				}
 			})
 
