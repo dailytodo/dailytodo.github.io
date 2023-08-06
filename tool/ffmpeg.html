@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>ffmpeg常用命令</title>
+		<meta name="viewport"
+			content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+				box-sizing: border-box;
+				font-family: '楷体';
+			}
+
+			.wrap {
+				position: absolute;
+				left: 0;
+				top: 0;
+				right: 0;
+				bottom: 0;
+
+			}
+
+			.title {
+				font-size: 20px;
+				text-align: center;
+			}
+
+			.each {
+				display: flex;
+				height: 25px;
+				line-height: 25px;
+			}
+
+			.each .title {
+				text-align: left;
+				font-size: 18px;
+				;
+				margin-right: 20px;
+
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="wrap">
+			<div class="title">windows常用cmd命令</div>
+
+			<div class="content">
+				<div class="each">
+					<div class="title">转换视频格式</div>
+					<div class="cmd">ffmpeg -i E:/video/origin.mp4 E:/video/output.mp4</div>
+				</div>
+
+				<div class="each">
+					<div class="title">提取视频声音</div>
+					<div class="cmd">ffmpeg -i test.mp4 -f ogg out.ogg</div>
+				</div>
+
+				<div class="each">
+					<div class="title">提取视频声音(指定采样率8000)</div>
+					<div class="cmd">ffmpeg -i test.mp3 -ar 8000 out.mp3</div>
+				</div>
+
+				<div class="each">
+					<div class="title">提取视频声音(指定比特率5000)</div>
+					<div class="cmd">ffmpeg -i test.mp3 -ab 5000 out.mp3</div>
+				</div>
+
+				<div class="each">
+					<div class="title">提取视频(不要声音)(提取失败的话，先转下格式再试试)</div>
+					<div class="cmd">ffmpeg -i output.mp4 -c:v copy -an ok.mp4</div>
+				</div>
+
+				<div class="each">
+					<div class="title">提取视频指定时间的一帧图片</div>
+					<div class="cmd">ffmpeg -i test.mp4 -f ogg out.ogg</div>
+				</div>
+
+				<div class="each">
+					<div class="title">从指定时间点提取一帧图片</div>
+					<div class="cmd">ffmpeg -ss 00:00:08 -i D:/tt/test.wmv -vframes 1 -q:v 2 D:/tt/output.jpg</div>
+				</div>
+
+				<div class="each">
+					<div class="title">视频和声音合并</div>
+					<div class="cmd">ffmpeg.exe -i test.wav -i test.mp4 output.mp4</div>
+				</div>
+
+				<div class="each">
+					<div class="title">视频裁剪</div>
+					<div class="cmd">ffmpeg -i E:/jianying/origin.mp4 -vf crop=489:1080:676:0 E:/jianying/out.mp4 -y
+					</div>
+					<div>crop的参数格式 width:height:startX:startY， 其中width、height表示输出视频的宽高(单位像素)；
+						startX、startY裁剪的左顶点(默认居中裁剪)。</div>
+				</div>
+			</div>
+			<hr>
+			<div>
+
+				<pre>
+
+				///////音频背景音分离方案//start////////////////////////////////////////
+				0.docker下载spleeter镜像
+				docker pull researchdeezer/spleeter
+				
+				1.docker创建spleeter容器，并执行音频分离
+				docker run --rm -v $(pwd)/output:/output -v $(pwd)/input:/input -v $(pwd)/pretrained_models:/model researchdeezer/spleeter separate -i /input/test.mp3 -o /output -p spleeter:5stems
+				
+				
+				docker run --rm -v D:/job/node_code/sv/spleeter/output:/output -v D:/job/node_code/sv/spleeter/input:/input -v D:/job/node_code/sv/spleeter/pretrained_models:/model researchdeezer/spleeter separate -i /input/test.mp3 -o /output -p spleeter:5stems
+				
+				docker run --rm -v D:/job/node_code/sv/spleeter/output:/output -v D:/job/node_code/sv/spleeter/input:/input -v D:/job/node_code/sv/spleeter/pretrained_models:/model researchdeezer/spleeter separate -i /input/test.mp3 -o /output -p spleeter:2stems
+				
+				
+				
+				命令参数说明
+				--rm：docker run生成container，本次用完就删掉
+				-v $(pwd)/output:/output：指把宿主机的$(pwd)/output文件夹和docker里/output进行映射
+				-v $(pwd)/pretrained_models:/model：注意docker里存放模型的文件夹名为model
+				separate -i /input/test.flac -o /output -p spleeter:5stems：这里是执行spleeter的命令，和上面一样，-i是需要分割的音频文件，-o是输出文件夹，-p是选择2/4/5模型。运行完之后会在output文件夹生成一个和音频同名的文件夹。
+				
+				可以看到，owner是root，所以我宿主机作为普通用户是删不掉的，解决方法可参考
+				解决Docker以默认root用户运行生成的文件权限为root的问题 - 简书 (jianshu.com)
+				Docker用户身份登录和管理员权限
+				
+				
+				2.总结
+				如果使用python手动安装spleeter的话，不太容易成功（windows10下尝试了很多方法没成功），用docker快速！
+				
+				///////音频背景音分离方案//end////////////////////////////////////////
+				
+				
+				
+				/////去除噪音方案(sox)////start//////////////////
+				
+				0.sox软件的默认安装路径(需要加入环境变量后才能在cmd中使用)
+				C:\Program Files (x86)\sox-14-4-2
+				
+				1.使用噪音生成噪音样本文件nosiepf.prof
+				sox noise.wav -n noiseprof nosiepf.prof
+				
+				2.去掉原音频的噪音(噪音等级默认0.5，取值范围0-1)
+				sox origin.wav ok.wav noisered nosiepf.prof 0.21
+				
+				3.参考链接
+				http://sox.sourceforge.net
+				https://sourceforge.net/projects/sox/files/sox/14.4.2/sox-14.4.2-win32.exe/download
+				
+				https://www.jianshu.com/p/d53b9eb5cfba
+				
+				/////去除噪音方案(sox)////end//////////////////
+				
+	
+</pre>
+			</div>
+
+		</div>
+
+		<script>
+
+		</script>
+
+	</body>
+</html>

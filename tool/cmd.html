@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>windows操作系统cmd常用命令</title>
+		<meta name="viewport"
+			content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+				box-sizing: border-box;
+				font-family: '楷体';
+			}
+
+			.wrap {
+				position: absolute;
+				left: 0;
+				top: 0;
+				right: 0;
+				bottom: 0;
+
+			}
+			
+			.title{
+				font-size:20px;
+				text-align: center;
+			}
+			.each{
+				display:flex;
+				height:25px;
+				line-height:25px;
+			}
+			.each .title{
+				text-align: left;
+				font-size: 18px;;
+				margin-right:20px;
+				
+			}
+			
+		</style>
+	</head>
+	<body>
+
+		<div class="wrap">
+			<div class="title">windows常用cmd常用命令</div>
+			
+			<div class="content">
+				<div class="each">
+					<div class="title">锁屏</div>
+					<div class="cmd">Rundll32.exe user32.dll,LockWorkStation</div>
+				</div>
+				<div class="each">
+					<div class="title">查找端口号</div>
+					<div class="cmd">netstat -ano|findstr 80</div>
+				</div>
+			</div>
+
+		</div>
+
+		<script>
+
+		</script>
+
+	</body>
+</html>
