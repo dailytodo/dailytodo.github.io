@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>java的http请求</title>
+		<meta name="viewport"
+			content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+				box-sizing: border-box;
+				font-family: '楷体';
+			}
+
+			.wrap {
+				position: absolute;
+				left: 0;
+				top: 0;
+				right: 0;
+				bottom: 0;
+
+			}
+
+			.title {
+				font-size: 20px;
+				text-align: center;
+			}
+
+			.each {
+				display: flex;
+				height: 25px;
+				line-height: 25px;
+			}
+
+			.each .title {
+				text-align: left;
+				font-size: 18px;
+				;
+				margin-right: 20px;
+
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="wrap">
+			<div class="title">java的http请求</div>
+
+
+			</div>
+			<hr>
+			<div>
+
+				<pre> 
+package org.example;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class Curl {
+    public static void main(String[] args) {
+
+    }
+    public static void sendGet() {
+        HttpURLConnection httpURLConnection = null;
+        InputStream inputStream = null;
+        BufferedReader bufferedReader = null;
+        StringBuffer stringBuffer = new StringBuffer();
+
+        try {
+            URL url = new URL("http://127.0.0.1:8888/demo/get?user=xiaoxin&age=18");
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.setReadTimeout(20000);//20秒
+            httpURLConnection.setConnectTimeout(3000);//3秒连接超时
+            httpURLConnection.connect();
+
+            inputStream = httpURLConnection.getInputStream();
+            if (inputStream == null) {
+                throw new Exception("server response null");
+            }
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            String str = null;
+            while ((str = bufferedReader.readLine()) != null) {
+                stringBuffer.append(str);
+            }
+            System.out.println(stringBuffer.toString());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                bufferedReader.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            if (httpURLConnection != null) {
+                httpURLConnection.disconnect();
+            }
+        }
+
+
+    }
+
+
+    /**
+     * POST请求示例
+     */
+
+    public static void sendPost() {
+
+        HttpURLConnection httpURLConnection = null;
+        InputStream inputStream = null;
+        BufferedReader bufferedReader = null;
+        StringBuffer stringBuffer = new StringBuffer();
+        try {
+            URL url = new URL("http://127.0.0.1:8888/demo/get?user=xiaoxin&age=18");
+            HttpURLConnection httpUrlConnection = (HttpURLConnection) url.openConnection();
+            httpUrlConnection.setConnectTimeout(3000); // 30秒连接服务器超时
+            httpUrlConnection.setDoOutput(true);
+            httpUrlConnection.setDoInput(true);
+            httpUrlConnection.setUseCaches(false);//使用缓存，false不使用
+            httpUrlConnection.setInstanceFollowRedirects(true);//重定向，true开启重定向
+            httpUrlConnection.setRequestMethod("POST");
+            httpUrlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            httpUrlConnection.setRequestProperty("Connection", "Keep-Alive");
+            httpUrlConnection.connect();
+
+            String params = "username=test&password=123456";//请求参数设置
+            OutputStream out = httpUrlConnection.getOutputStream();
+            out.write(params.getBytes());
+            out.flush();
+            out.close();
+
+            int code = httpUrlConnection.getResponseCode();//api响应码
+            inputStream = httpUrlConnection.getInputStream();
+            if (inputStream == null) {
+                throw new Exception("server response null");
+            }
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            String str = null;
+            while ((str = bufferedReader.readLine()) != null) {
+                stringBuffer.append(str);
+            }
+            // 5. 断开连接
+            httpUrlConnection.disconnect();
+
+            // 处理结果
+            System.out.println(stringBuffer.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                bufferedReader.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            if (httpURLConnection != null) {
+                httpURLConnection.disconnect();
+            }
+        }
+    }
+}
+
+				
+	
+</pre>
+			</div>
+
+		</div>
+
+		<script>
+
+		</script>
+
+	</body>
+</html>
