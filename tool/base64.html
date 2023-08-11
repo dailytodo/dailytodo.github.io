@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>base64编解码</title>
+		<meta name="viewport"
+			content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+				box-sizing: border-box;
+				font-family: '楷体';
+			}
+
+			.wrap {
+				position: absolute;
+				left: 0;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+			}
+
+			.handle {
+				height: 30px;
+				display: flex;
+				/* justify-content: center; */
+				align-items: center;
+			}
+
+			.handle .each {
+				line-height: 18px;
+			}
+
+			.handle .open,
+			.handle .close,
+			.handle .choose {
+				margin-left: 12px;
+				border: 1px solid #fff;
+				color: #6699cc;
+			}
+
+			.handle .open:hover,
+			.handle .close:hover,
+			.handle .choose:hover {
+				cursor: pointer;
+				border: 1px solid #6699cc;
+				color: #6699cc;
+			}
+
+			.write {
+				flex: 1;
+				outline: 0px solid transparent;
+				overflow-y: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+
+			<div class='handle'>
+				<div class='each title'>工具名:base64编解码</div>
+				<div class='each choose'>全选</div>
+				<div class="each open">编码</div>
+				<div class='each close'>解码</div>
+			</div>
+
+			<div class="write" contenteditable="plaintext-only"></div>
+		</div>
+
+		<script>
+			let openEl = document.querySelector('.open')
+			let closeEl = document.querySelector('.close')
+			let chooseEl = document.querySelector('.choose')
+			let writeEl = document.querySelector('.write')
+
+
+			function delHtmlTag(str) {
+				return str.replace(/<[^>]+>/g, "");
+			}
+			openEl.addEventListener('click', function() {
+				let jsonStr = writeEl.innerHTML;
+				jsonStr = delHtmlTag(jsonStr)
+				// console.log(jsonStr)
+				try {
+					let obj = window.btoa(jsonStr)
+					writeEl.innerHTML = obj
+					writeEl.style.color = 'black';
+				} catch (e) {
+					writeEl.style.color = 'red';
+					console.log(e)
+				}
+			})
+			closeEl.addEventListener('click', function() {
+				try {
+					let jsonStr = writeEl.innerHTML;
+					jsonStr = delHtmlTag(jsonStr)
+					let obj = window.atob(jsonStr)
+					writeEl.innerHTML = obj
+					writeEl.style.color = 'black';
+				} catch (e) {
+					writeEl.style.color = 'red';
+					console.log(e)
+				}
+			})
+
+			chooseEl.addEventListener('click', function() {
+				const range = document.createRange()
+				range.selectNodeContents(writeEl)
+				window.getSelection().removeAllRanges() // 清楚其他的选中状态
+				window.getSelection().addRange(range) // 添加元素选中住那个改				
+			})
+
+			writeEl.focus()
+		</script>
+	</body>
+</html>

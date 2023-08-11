@@ -377,6 +377,8 @@
 			var cate = {
 				"开发工具": [
 					"JSON工具",
+					"url编解码",
+					"base64编解码",
 					"cmd命令",
 					"ffmpeg"
 				],
@@ -417,7 +419,18 @@
 				]
 			};
 			var list = [
-
+				{
+					"name": "url编解码", //这个作为id使用，需要同步到分类
+					"link": "tool/url.html",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
+				{
+					"name": "base64编解码", //这个作为id使用，需要同步到分类
+					"link": "tool/base64.html",
+					// "target": "_self:默认  _blank:新窗口打开 "
+					"target": "_blank"
+				},
 				{
 					"name": "cmd命令", //这个作为id使用，需要同步到分类
 					"link": "tool/cmd.html",
